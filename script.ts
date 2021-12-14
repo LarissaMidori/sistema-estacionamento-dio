@@ -1,3 +1,9 @@
+interface Veiculo {
+  nome: string;
+  placa: string;
+  entrada: Date;
+}
+
 (function () {
   const $ = (query: string): HTMLInputElement | null => 
     document.querySelector(query);
@@ -7,8 +13,19 @@
 
       }
 
-      function adicionar() {
+      function adicionar(veiculo: Veiculo) {
+        const row = document.createElement("tr");
 
+        row.innerHTML = `
+        <td>${veiculo.nome}</td>
+        <td>${veiculo.placa}</td>
+        <td>${veiculo.entrada}</td>
+        <td>
+          <button class="delete" data-placa="${veiculo.placa}">X</button>
+        </td>
+        `;
+
+        $("#patio")?.appendChild(row); //adiciona os dados na row
       }
 
       function remover() {
@@ -35,5 +52,8 @@
       alert("Os campos nome e placa são obrigatórios");
       return;
     }
+
+    patio().adicionar({ nome, placa, entrada: new Date() });
+
   });
 })();
