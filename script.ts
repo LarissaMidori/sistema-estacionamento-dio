@@ -9,8 +9,13 @@ interface Veiculo {
     document.querySelector(query);
 
     function patio() {
-      function ler() {
 
+      function ler() {
+        return localStorage.patio ? JSON.parse(localStorage.patio) : []; //localStorage trabalha com string
+      }
+
+      function salvar (veiculos: Veiculo[]) {  //toda vez que adicionar um veiculo vai salvar
+        localStorage.setItem("patio", JSON.stringify(veiculos));
       }
 
       function adicionar(veiculo: Veiculo) {
@@ -26,13 +31,11 @@ interface Veiculo {
         `;
 
         $("#patio")?.appendChild(row); //adiciona os dados na row
+
+        salvar([...ler(), veiculo]) //spread
       }
 
       function remover() {
-
-      }
-
-      function salvar () {
 
       }
 
