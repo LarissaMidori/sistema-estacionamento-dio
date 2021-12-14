@@ -1,12 +1,20 @@
-"use strict";
 (function () {
     var _a;
     const $ = (query) => document.querySelector(query);
+    function calcTempo(mil) {
+        const min = Math.floor(mil / 60000);
+        const sec = Math.floor((mil % 60000) / 1000);
+        return `${min}m e ${sec}s`;
+    }
     function patio() {
         function ler() {
+            return localStorage.patio ? JSON.parse(localStorage.patio) : []; //localStorage trabalha com string
         }
-        function adicionar(veiculo) {
-            var _a;
+        function salvar(veiculos) {
+            localStorage.setItem("patio", JSON.stringify(veiculos));
+        }
+        function adicionar(veiculo, salva) {
+            var _a, _b;
             const row = document.createElement("tr");
             row.innerHTML = `
         <td>${veiculo.nome}</td>
@@ -16,13 +24,27 @@
           <button class="delete" data-placa="${veiculo.placa}">X</button>
         </td>
         `;
-            (_a = $("#patio")) === null || _a === void 0 ? void 0 : _a.appendChild(row); //adiciona os dados na row
+            (_a = row.querySelector(".delete")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", function () {
+                remover(this.dataset.placa); //removido o "strict": true do tsconfig.json para não dar erro aqui
+            });
+            (_b = $("#patio")) === null || _b === void 0 ? void 0 : _b.appendChild(row); //adiciona os dados na row
+            if (salva)
+                salvar([...ler(), veiculo]); //spread
         }
-        function remover() {
-        }
-        function salvar() {
+        function remover(placa) {
+            const { entrada, nome } = ler().find(veiculo => veiculo.placa === placa);
+            const tempo = calcTempo(new Date().getTime() - new Date(entrada).getTime()); // o typescript não permite fazer conta com o newDate() por isso o .getTime que pega o tempo em milissegundos foi adicionado
+            if (!confirm(`O veículo ${nome} permaneceu por ${tempo}. Deseja encerrar?`))
+                return;
+            salvar(ler().filter((veiculo) => veiculo.placa !== placa));
+            render();
         }
         function render() {
+            $("#patio").innerHTML = ""; //usar o force só quando ter certeza, para não quebrar o código
+            const patio = ler();
+            if (patio.length) {
+                patio.forEach((veiculo) => adicionar(veiculo));
+            }
         }
         return { ler, adicionar, remover, salvar, render };
     }
@@ -34,6 +56,6 @@
             alert("Os campos nome e placa são obrigatórios");
             return;
         }
-        patio().adicionar({ nome, placa, entrada: new Date() });
+        patio().adicionar({ nome, placa, entrada: new Date().toISOString() }, true); // .toISOString() transforma para o padrão mundial de horário
     });
 })();
